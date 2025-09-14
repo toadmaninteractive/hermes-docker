@@ -1,0 +1,24 @@
+http:
+  routers:
+    hermes-backend:
+      rule: Host(`hermes.yourcompany.com`) && PathRegexp(`^/api/`)
+      service: hermes-backend
+      tls: true
+
+    hermes-frontend:
+      rule: Host(`hermes.yourcompany.com`)
+      tls: true
+      service: hermes-frontend
+
+  services:
+    hermes-backend:
+      loadBalancer:
+        servers:
+          - url: http://hermes-backend-prod:39100
+        passHostHeader: false
+        serversTransport: passthru@file
+
+    hermes-frontend:
+      loadBalancer:
+        servers:
+          - url: http://hermes-frontend-prod
