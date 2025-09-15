@@ -2,7 +2,7 @@
 
 A Docker-based deployment for the Hermes backend and frontend applications.
 
-## Quick Start
+## Quickstart
 
 Follow these steps to set up and run Hermes using Docker:
 
@@ -10,13 +10,13 @@ Follow these steps to set up and run Hermes using Docker:
 
 Create a folder for Hermes-related repos:
 
-```shell
+```bash
 mkdir hermes && cd hermes
 ```
 
 Clone Hermes repos:
 
-```shell
+```bash
 git clone https://github.com/toadmaninteractive/hermes-backend
 git clone https://github.com/toadmaninteractive/hermes-frontend
 git clone https://github.com/toadmaninteractive/hermes-docker
@@ -26,7 +26,7 @@ git clone https://github.com/toadmaninteractive/hermes-docker
 
 Open `hermes-backend` dir and run:
 
-```shell
+```bash
 docker build -t hermes-backend:latest .
 ```
 
@@ -34,13 +34,13 @@ docker build -t hermes-backend:latest .
 
 Open `hermes-frontend` dir and run:
 
-```shell
+```bash
 docker build -t hermes-frontend:latest --build-arg BUILD_ENV=production .
 ```
 
 ### 4. Create dedicated Docker network
 
-```shell
+```bash
 docker network create hermes
 ```
 
@@ -48,7 +48,7 @@ docker network create hermes
 
 Open `hermes-docker` dir and create a configuration file from an example:
 
-```shell
+```bash
 cp config.yaml.example config.yaml
 ```
 
@@ -58,7 +58,7 @@ Edit the config.yaml file:
 
 ### 6. Run Docker Compose
 
-```shell
+```bash
 docker compose up -d
 ```
 
@@ -66,7 +66,7 @@ docker compose up -d
 
 Connect to the Hermes backend interactive console:
 
-```shell
+```bash
 docker compose exec hermes-backend /app/bin/server remote --sname remote --cookie hcookie --remsh hermes_local
 ```
 
@@ -78,3 +78,58 @@ Hermes.sync_ldap()
 ```
 
 Exit the console by pressing `Ctrl+G`, then `Q`, and finally `Enter`.
+
+## Accessing Hermes in a browser
+
+After completing the Quickstart guide, Hermes will be running in Docker containers.
+To access the web interface through a browser, you'll need to set up a reverse proxy.
+
+We provide two recommended approaches:
+
+### Option 1: Local Proxy Setup
+Configure a local proxy server such as **nginx** to route traffic to the Hermes containers.
+
+### Option 2: Traefik Proxy (Recommended for Production)
+We provide a pre-configured [Traefik](https://github.com/traefik/traefik) setup for production deployments.
+Traefik automatically handles SSL termination, load balancing, and routing.
+
+#### Prerequisites for Traefik
+- **Registered domain name** pointing to your server
+- **SSL certificates** (certificate chain and private key)
+
+#### Traefik Configuration Steps
+
+1. **Prepare SSL certificates**
+- Save your certificate chain as `cert_key_chain.crt`
+- Save your private key as `private.key`
+- Place both files in the traefik/certs directory
+
+2. **Configure your domain**
+- Edit `traefik/conf/dynamic/hermes.yml`
+- Replace `hermes.yourcompany.com` with your actual domain name
+
+3. **Start Traefik**
+
+Run this command from the `docker` directory:
+
+```bash
+docker compose up -d
+```
+
+4. **Stop Traefik**
+
+Run this command from the `docker` directory:
+
+```bash
+docker compose down
+```
+
+#### Verification
+After starting Traefik, access Hermes at https://your-domain.com (replace with your actual domain).
+The proxy automatically handles SSL encryption and redirects HTTP traffic to HTTPS.
+
+#### Additional notes
+- Ensure your firewall allows traffic on ports 80 (HTTP) and 443 (HTTPS)
+- DNS records should point to your server's public IP address
+- Certificate files must be in PEM format
+- Traefik automatically monitors container changes and updates routing accordingly
